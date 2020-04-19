@@ -25,35 +25,68 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final scaffoldKey = new GlobalKey<ScaffoldState>();
+  final formKey = new GlobalKey<FormState>();
 
-  final FocusNode focusNode =  FocusNode();
+  String _email;
+  String _password;
+
+  void _submit() {
+    final form = formKey.currentState;
+
+    if(form.validate()){
+      form.save();
+      performLogin();
+    }
+
+  }
+  void performLogin() {
+    final snackBar = SnackBar(
+      content: Text("Email : $_email, password : $_password"),
+    );
+    scaffoldKey.currentState.showSnackBar(snackBar);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Container(
-        padding: EdgeInsets.all(10.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              autofocus: true,
-            ),
-            TextField(
-              focusNode: focusNode,
-            )
-          ],
+        key: scaffoldKey,
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-      ),
-     floatingActionButton: FloatingActionButton(
-       child: Icon(
-         Icons.add
-       ),
-       onPressed: ()=> FocusScope.of(context).requestFocus(focusNode),
-     ),
-     // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        body: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: <Widget>[
+                TextFormField(
+                  validator: (val) =>
+                      !val.contains("@") ? "Invalid Email" : null,
+                  decoration: InputDecoration(labelText: "Email"),
+                  onSaved: (val) => _email = val,
+                ),
+                TextFormField(
+                  validator: (val) => val.length < 6 ? "password too short" : null,
+                  decoration: InputDecoration(labelText: "Password"),
+                  onSaved: (val) => _password = val,
+                  obscureText: true,
+                ),
+                Padding(
+                  padding: EdgeInsets.all(15.0),
+                ),
+                RaisedButton(
+                  onPressed: _submit,
+                  child: Text("Login"),
+                )
+              ],
+            ),
+          ),
+        )
+
+        // This trailing comma makes auto-formatting nicer for build methods.
+        );
   }
+
+
 }
